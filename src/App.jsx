@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import { AiOutlineDelete, AiOutlineSave } from "react-icons/ai";
 import { FaRegEdit } from "react-icons/fa";
-// import PaginationButton from "./PaginationButton";
+
+import UserTableRow from "./components/UserTableRow";
+import PaginationButton from "./components/PaginationButton";
 
 const API_URL =
   "https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json";
@@ -34,12 +36,7 @@ function App() {
     setCurrentPage(1);
   };
 
-  // const handleSelectAll = event => {
-  //   const checked = event.target.checked;
-  //   setFilteredUsers(
-  //     filteredUsers.slice((currentPage - 1) * 10, currentPage * 10).map(user => ({ ...user, isSelected: checked }))
-  //   );
-  // };
+
 
   const handleSelectAll = (event) => {
     const checked = event.target.checked;
@@ -57,20 +54,6 @@ function App() {
       })
     );
   };
-  // const handleSelectAll = (event) => {
-  //   const checked = event.target.checked;
-  //   if (checked) {
-  //     // Mark all users on the current page as selected
-  //     setFilteredUsers(
-  //       filteredUsers.map((user) => ({ ...user, isSelected: true }))
-  //     );
-  //   } else {
-  //     // Uncheck all users on the current page
-  //     setFilteredUsers(
-  //       filteredUsers.map((user) => ({ ...user, isSelected: false }))
-  //     );
-  //   }
-  // };
 
   const handleSelectUser = (userId, checked) => {
     setFilteredUsers(
@@ -95,58 +78,7 @@ function App() {
     handlePageChange("first");
   };
 
-  // const handleDeleteSelected = () => {
-  //   // Implement delete selected functionality
-  //   setFilteredUsers(filteredUsers.filter(user => !user.isSelected));
-  // };
-
-  // const handlePageChange = direction => {
-  //   const totalPages = Math.ceil(filteredUsers.length / 10);
-  //   let newPage = currentPage;
-  //   switch (direction) {
-  //     case 'first':
-  //       newPage = 1;
-  //       break;
-  //     case 'previous':
-  //       newPage = Math.max(1, currentPage - 1);
-  //       break;
-  //     case 'next':
-  //       newPage = Math.min(totalPages, currentPage + 1);
-  //       break;
-  //     case 'last':
-  //       newPage = totalPages;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   setCurrentPage(newPage);
-  // };
-
-  // const handlePageChange = (direction) => {
-  //   const totalPages = Math.ceil(filteredUsers.length / 10);
-  //   let newPage = currentPage;
-  //   switch (direction) {
-  //     case "first":
-  //       newPage = 1;
-  //       break;
-  //     case "previous":
-  //       newPage = Math.max(1, currentPage - 1);
-  //       break;
-  //     case "next":
-  //       newPage = Math.min(totalPages, currentPage + 1);
-  //       break;
-  //     case "last":
-  //       newPage = totalPages;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   // Check if page is valid
-  //   if (newPage > totalPages) {
-  //     newPage = totalPages;
-  //   }
-  //   setCurrentPage(newPage);
-  // };
+  // 
   const totalPages = Math.ceil(filteredUsers.length / 10);
 
   const handlePageChange = (direction, pageNumber) => {
@@ -246,82 +178,27 @@ function App() {
     setEditState({ ...editState, [id]: false });
   };
   
-  const handleToggleEdit = (id) => {
-    setEditState({ ...editState, [id]: !editState[id] });
-  };
-
+ 
   const handleEditChange = (id, value, field) => {
     // Update the specific user property based on the field
     setUsers(users.map((user) => (user.id === id ? { ...user, [field]: value } : user)));
   };
+
+  const userLists = filteredUsers.slice((currentPage - 1) * 10, currentPage * 10).map((user) => (
+    <UserTableRow
+      key={user.id}
+      user={user}
+      editState={editState}
+      handleSelectUser={handleSelectUser}
+      handleEdit={handleEdit}
+      handleSave={handleSave}
+      handleEditChange={handleEditChange}
+      handleDeleteSelected={handleDeleteSelected}
+    />
+  ))
   
   
 
-  const usersList = filteredUsers
-    .slice((currentPage - 1) * 10, currentPage * 10)
-    .map((user) => (
-      <tr key={user.id}>
-        <td>
-          <input
-            type="checkbox"
-            checked={user.isSelected}
-            onChange={() => handleSelectUser(user.id, !user.isSelected)}
-          />
-        </td>
-        {/* <td>{user.name}</td>
-        <td>{user.email}</td>
-        <td>{user.role}</td>
-        <td>
-          <div className="flex flex-row justify-center items-center gap-4">
-            <FaRegEdit className="border   text-4xl  p-1" />
-            <AiOutlineDelete onClick={() => handleDeleteSelected(user.id)} className="border text-red-400  text-4xl  p-1" />
-          </div>
-        </td> */}
-            {editState[user.id] ? (
-              
-      <>
-        <td>
-          <input
-            type="text"
-            value={user.name}
-            onChange={(event) => handleEditChange(user.id, event.target.value, "name")}
-          />
-        </td>
-        <td>
-          <input
-            type="email"
-            value={user.email}
-            onChange={(event) => handleEditChange(user.id, event.target.value, "email")}
-          />
-        </td>
-        <td>
-          <input
-            type="text"
-            value={user.role}
-            onChange={(event) => handleEditChange(user.id, event.target.value, "role")}
-          />
-        </td>
-      </>
-    ) : (
-      <>
-        <td>{user.name}</td>
-        <td>{user.email}</td>
-        <td>{user.role}</td>
-      </>
-    )}
-    <td className="flex flex-row justify-center items-center gap-4">
-      {editState[user.id] ? (
-        <AiOutlineSave onClick={() => handleSave(user.id)} className="border   text-4xl  p-1"/>
-
-      ) : (
-        <div className="flex flex-row justify-center items-center gap-4">
-            <FaRegEdit onClick={() => handleEdit(user.id)} className="border text-4xl  p-1" />
-            <AiOutlineDelete onClick={() => handleDeleteSelected(user.id)} className="border text-red-400  text-4xl  p-1" />
-          </div>
-      )}
-    </td>
-      </tr>
-    ));
 
   return (
     <div className="container mx-auto px-2 py-2">
@@ -361,7 +238,7 @@ function App() {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>{usersList}</tbody>
+        <tbody>{userLists}</tbody>
       </table>
       <div className="flex justify-between items-center mt-4">
         <span>
@@ -375,11 +252,3 @@ function App() {
 
 export default App;
 
-const PaginationButton = ({ pageNumber, handlePageChange, isActive }) => (
-  <button
-    className={`btn btn-primary ${isActive ? "active" : ""}`}
-    onClick={() => handlePageChange("number", pageNumber)}
-  >
-    {pageNumber}
-  </button>
-);
